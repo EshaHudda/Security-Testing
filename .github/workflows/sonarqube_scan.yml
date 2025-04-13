@@ -39,8 +39,8 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }} # Store your SonarQube token as a GitHub secret
       run: |
-        sonar-scanner -Dsonar.projectKey=your-project-key \
-                      -Dsonar.host.url=your-sonarqube-url \
+        sonar-scanner -Dsonar.projectKey=EshaHudda_Security-Testing \
+                      -Dsonar.host.url=https://sonarcloud.io \
                       -Dsonar.login="$SONAR_TOKEN"
 
     # Optional: Add steps to handle SonarQube quality gate status
