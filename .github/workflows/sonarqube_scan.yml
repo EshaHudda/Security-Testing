@@ -1,0 +1,51 @@
+name: SonarQube Static Code Analysis
+
+on:
+  push:
+    branches: [ main ] # Or your main branch name
+  pull_request:
+    branches: [ main ] # Or your main branch name
+
+jobs:
+  sonarqube_analysis:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Shallow clone is not enough for SonarQube
+
+    - name: Set up Java (if your app uses Java/Kotlin/etc.)
+      if: contains(github.workspace, '.java') || contains(github.workspace, '.kt') # Adjust
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17' # Or your required Java version
+
+    - name: Set up Node.js (if your app uses JavaScript/TypeScript)
+      if: contains(github.workspace, '.js') || contains(github.workspace, '.ts') # Adjust
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+
+    - name: Install SonarQube Scanner
+      run: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+        unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+        sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+        sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+
+    - name: Run SonarQube Analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }} # Store your SonarQube token as a GitHub secret
+      run: |
+        sonar-scanner -Dsonar.projectKey=your-project-key \
+                      -Dsonar.host.url=your-sonarqube-url \
+                      -Dsonar.login="$SONAR_TOKEN"
+
+    # Optional: Add steps to handle SonarQube quality gate status
+    #- name: Check SonarQube Quality Gate
+    #  uses: sonarsource/sonarqube-quality-gate-action@v1.4
+    #  timeout-minutes: 5
+    #  env:
+    #    SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
